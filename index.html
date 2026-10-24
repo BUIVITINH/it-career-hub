@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giới thiệu ngành Công nghệ Thông tin | HUTECH</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100">
+
+    <!-- ==================== MÀN HÌNH CHẶN (BẮT BUỘC ĐĂNG NHẬP TRƯỚC KHI VÀO WEB) ==================== -->
+    <div id="authGateModal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-600/20 text-blue-400 mb-3 text-xl border border-blue-500/30">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">Cổng Thông Tin CNTT HUTECH</h3>
+                <p class="text-xs text-slate-400 mt-1">Vui lòng đăng nhập hoặc đăng ký tài khoản để tiếp tục truy cập hệ thống</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-900 rounded-xl mb-6 border border-slate-700/60 text-xs font-semibold">
+                <button id="tabLogin" onclick="switchAuthTab('login')" class="py-2 rounded-lg bg-blue-600 text-white transition flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
+                </button>
+                <button id="tabRegister" onclick="switchAuthTab('register')" class="py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-user-plus"></i> Đăng ký
+                </button>
+                <button id="tabAdmin" onclick="switchAuthTab('admin')" class="py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-user-shield"></i> Admin
+                </button>
+            </div>
+
+            <!-- Form Đăng nhập -->
+            <div id="formLogin" class="space-y-4">
+                <div class="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300 leading-relaxed">
+                    <i class="fa-solid fa-circle-info mr-1"></i> Nhập MSSV và mật khẩu cá nhân để vào trang web.
+                </div>
+                <form onsubmit="handleStudentLogin(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Mã số sinh viên (MSSV)</label>
+                        <input type="text" id="loginMssv" required placeholder="Nhập mã số sinh viên" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm focus:border-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Mật khẩu</label>
+                        <input type="password" id="loginPass" required placeholder="Nhập mật khẩu của bạn" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm focus:border-blue-500 focus:outline-none">
+                        <p id="studentAuthError" class="hidden text-xs text-red-400 mt-1.5">
+                            <i class="fa-solid fa-circle-exclamation"></i> Sai MSSV hoặc mật khẩu! Vui lòng kiểm tra lại.
+                        </p>
+                    </div>
+                    <button type="submit" class="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 font-semibold text-sm transition shadow-lg shadow-blue-500/20">
+                        Đăng Nhập Vào Hệ Thống
+                    </button>
+                </form>
+            </div>
+
+            <!-- Form Đăng ký -->
+            <div id="formRegister" class="space-y-4 hidden">
+                <div class="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 leading-relaxed">
+                    <i class="fa-solid fa-user-pen mr-1"></i> Sinh viên tự đăng ký tài khoản mới bằng MSSV và mật khẩu.
+                </div>
+                <form onsubmit="handleStudentRegister(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Mã số sinh viên (MSSV)</label>
+                        <input type="text" id="regMssv" required placeholder="Nhập mã số sinh viên" class="w-full px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm focus:border-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Họ và tên</label>
+                        <input type="text" id="regName" required placeholder="Nhập họ và tên đầy đủ" class="w-full px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm focus:border-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Mật khẩu đăng ký</label>
+                        <input type="password" id="regPass" required placeholder="Tạo mật khẩu cá nhân" class="w-full px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm focus:border-emerald-500 focus:outline-none">
+                        <p id="regError" class="hidden text-xs text-red-400 mt-1.5"><i class="fa-solid fa-circle-exclamation"></i> Mã số sinh viên này đã tồn tại!</p>
+                    </div>
+                    <button type="submit" class="w-full py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 font-semibold text-sm transition shadow-lg shadow-emerald-500/20">
+                        Đăng Ký & Đăng Nhập
+                    </button>
+                </form>
+            </div>
+
+            <!-- Form Admin -->
+            <form id="formAdmin" onsubmit="handleAdminLogin(event)" class="space-y-3 hidden">
+                <div class="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20 text-xs text-purple-300 leading-relaxed">
+                    <i class="fa-solid fa-lock mr-1"></i> Khu vực quản trị viên tối cao.
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Tài khoản quản trị</label>
+                    <input type="text" id="adminUser" placeholder="Nhập tài khoản admin" required autocomplete="off" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm focus:border-purple-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Mật khẩu bảo mật</label>
+                    <input type="password" id="adminPass" placeholder="Nhập mật khẩu admin" required autocomplete="new-password" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm focus:border-purple-500 focus:outline-none">
+                </div>
+                <button type="submit" class="w-full py-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 font-semibold text-sm transition shadow-lg shadow-purple-500/20">
+                    Đăng Nhập Quản Trị Viên
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== GIAO DIỆN CHÍNH (ĐƯỢC BẢO VỆ) ==================== -->
+    <div id="mainWebsiteContent" class="hidden">
+        <!-- Navbar -->
+        <nav class="fixed w-full z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center gap-3 cursor-pointer bg-white px-2.5 py-1 rounded-xl shadow-lg border border-slate-700 hover:scale-105 transition" onclick="switchPage('home')">
+                        <img src="image_6e5d03.png" alt="Logo HUTECH" class="h-9 w-auto object-contain">
+                    </div>
+
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-6 text-sm font-medium">
+                            <button onclick="switchPage('home')" class="hover:text-blue-400 transition">Trang chủ</button>
+                            <button onclick="switchPage('about')" class="hover:text-blue-400 transition">Giới thiệu ngành</button>
+                            <button onclick="switchPage('roadmap')" class="hover:text-blue-400 transition">Hướng học tập</button>
+                            <button onclick="switchPage('skills')" class="hover:text-blue-400 transition">Kỹ năng & Nghề nghiệp</button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <button id="adminDashboardBtn" onclick="toggleAdminDashboard()" class="hidden px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs font-semibold transition flex items-center gap-1.5 shadow-lg shadow-purple-500/20">
+                            <i class="fa-solid fa-users-gear"></i> Quản lý Hệ thống (Admin)
+                        </button>
+                        <div id="userInfoDisplay" class="flex items-center gap-2 text-sm text-slate-300 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                            <i id="userRoleIcon" class="fa-solid fa-user-graduate text-blue-400"></i>
+                            <span id="userNameText" class="font-medium"></span>
+                            <button onclick="logout()" class="ml-2 text-xs text-red-400 hover:text-red-300" title="Đăng xuất">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 1. TRANG CHỦ -->
+        <div id="page-home" class="page-view">
+            <section class="pt-36 pb-24 px-4 text-center bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+                <div class="max-w-4xl mx-auto">
+                    <span class="px-4 py-1.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/25">
+                        KHOA CÔNG NGHỆ THÔNG TIN • HUTECH
+                    </span>
+                    <h1 class="mt-6 text-4xl md:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-red-400">
+                        Chinh Phục Tương Lai Số Cùng CNTT HUTECH
+                    </h1>
+                    <p class="mt-6 text-lg text-slate-300 leading-relaxed">
+                        Đào tạo nguồn nhân lực chất lượng cao, vững chuyên môn, giỏi kỹ năng thực chiến, sẵn sàng đáp ứng nhu cầu khắt khe của thị trường công nghệ toàn cầu.
+                    </p>
+                    <div class="mt-8 flex flex-wrap justify-center gap-4">
+                        <button onclick="switchPage('roadmap')" class="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-500 font-semibold transition shadow-lg shadow-blue-500/25">
+                            Xem hướng học tập chi tiết
+                        </button>
+                        <button onclick="switchPage('skills')" class="px-6 py-3 rounded-lg bg-purple-600 hover:bg-purple-500 font-semibold transition shadow-lg shadow-blue-500/25">
+                            Khám phá Kỹ năng & Nghề nghiệp
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 2. TRANG GIỚI THIỆU NGÀNH -->
+        <div id="page-about" class="page-view hidden pt-28 pb-20 px-4 max-w-5xl mx-auto">
+            <div class="mb-10 text-center">
+                <span class="text-xs font-bold text-red-400 uppercase tracking-widest">Tổng quan chuyên ngành</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-2">Giới thiệu Ngành Công Nghệ Thông Tin tại HUTECH</h2>
+            </div>
+            <div class="space-y-6 text-slate-300 leading-relaxed bg-slate-800/40 p-8 rounded-2xl border border-slate-700/80 shadow-xl">
+                <p>
+                    Ngành <strong>Công nghệ Thông tin (CNTT)</strong> tại Đại học Công nghệ TP.HCM (HUTECH) trang bị cho sinh viên kiến thức toàn diện từ nền tảng toán - tin học đến các công nghệ phần mềm tiên tiến, trí tuệ nhân tạo (AI), hệ thống mạng và an toàn thông tin.
+                </p>
+                <div class="grid md:grid-cols-2 gap-6 my-6">
+                    <div class="p-5 rounded-xl bg-slate-900 border border-slate-700">
+                        <h3 class="font-bold text-blue-400 mb-2 text-base"><i class="fa-solid fa-bullseye mr-2"></i>Mục tiêu đào tạo</h3>
+                        <p class="text-sm text-slate-400">Đào tạo kỹ sư CNTT có đạo đức nghề nghiệp, tư duy sáng tạo, khả năng tự học cao và làm chủ công nghệ mới trong kỷ nguyên chuyển đổi số.</p>
+                    </div>
+                    <div class="p-5 rounded-xl bg-slate-900 border border-slate-700">
+                        <h3 class="font-bold text-emerald-400 mb-2 text-base"><i class="fa-solid fa-handshake mr-2"></i>Môi trường thực chiến</h3>
+                        <p class="text-sm text-slate-400">Hệ thống phòng lab hiện đại, liên kết chặt chẽ với các doanh nghiệp công nghệ lớn, đảm bảo 100% sinh viên được hỗ trợ thực tập và việc làm.</p>
+                    </div>
+                </div>
+                <div class="text-center pt-4">
+                    <button onclick="switchPage('roadmap')" class="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 font-semibold text-sm transition text-white">
+                        Tiếp tục xem Hướng học tập &rarr;
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. TRANG HƯỚNG HỌC TẬP -->
+        <div id="page-roadmap" class="page-view hidden pt-28 pb-20 px-4 max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="text-xs font-bold text-blue-400 uppercase tracking-widest">Lộ trình 4 năm đại học</span>
+                <h2 class="text-3xl font-bold text-white mt-2">Định Hướng Học Tập Chi Tiết</h2>
+                <p class="text-slate-400 mt-2">Lộ trình phát triển từ nền tảng cốt lõi đến các chuyên ngành mũi nhọn tại HUTECH</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-xl hover:border-blue-500/50 transition">
+                    <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-terminal"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Năm 1: Nền tảng</h3>
+                    <p class="text-slate-400 text-sm">Làm quen tư duy lập trình (C/C++), Toán rời rạc, Nhập môn ngành CNTT, Kiến trúc máy tính và kỹ năng học đại học hiệu quả.</p>
+                </div>
+                <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-xl hover:border-blue-500/50 transition">
+                    <div class="w-12 h-12 bg-cyan-500/10 text-cyan-400 rounded-lg flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-database"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Năm 2: Cơ sở ngành</h3>
+                    <p class="text-slate-400 text-sm">Cấu trúc dữ liệu & Giải thuật, Lập trình hướng đối tượng (OOP), Cơ sở dữ liệu (SQL Server/MySQL), Mạng máy tính và Hệ điều hành.</p>
+                </div>
+                <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-xl hover:border-blue-500/50 transition">
+                    <div class="w-12 h-12 bg-purple-500/10 text-purple-400 rounded-lg flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Năm 3: Chuyên ngành</h3>
+                    <p class="text-slate-400 text-sm">Đi sâu vào chuyên môn: Phát triển Web/Mobile (Java, .NET, ReactJS), Khoa học dữ liệu & AI, Công nghệ phần mềm nâng cao.</p>
+                </div>
+                <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-xl hover:border-blue-500/50 transition">
+                    <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-rocket"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Năm 4: Thực chiến</h3>
+                    <p class="text-slate-400 text-sm">Thực tập doanh nghiệp đối tác, làm Đồ án tốt nghiệp, hoàn thiện Portfolio cá nhân và sẵn sàng gia nhập thị trường lao động.</p>
+                </div>
+            </div>
+            <div class="text-center mt-12">
+                <button onclick="switchPage('skills')" class="px-6 py-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 font-semibold text-sm transition text-white">
+                    Khám phá Kỹ năng & Cơ hội nghề nghiệp &rarr;
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. TRANG KỸ NĂNG & CƠ HỘI NGHỀ NGHIỆP -->
+        <div id="page-skills" class="page-view hidden pt-28 pb-20 px-4 max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Năng lực & Tương lai</span>
+                <h2 class="text-3xl font-bold text-white mt-2">Kỹ Năng Cốt Lõi & Cơ Hội Nghề Nghiệp</h2>
+                <p class="text-slate-400 mt-2">Trang bị toàn diện giúp sinh viên CNTT HUTECH tự tin khẳng định bản thân</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 mb-16">
+                <div class="bg-slate-800/50 border border-slate-700 p-8 rounded-2xl shadow-xl">
+                    <h3 class="text-2xl font-bold text-blue-400 mb-6 flex items-center gap-3">
+                        <i class="fa-solid fa-brain"></i> Bộ Kỹ Năng Cốt Lõi Được Trang Bị
+                    </h3>
+                    <div class="space-y-4 text-slate-300 text-sm">
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-700/70">
+                            <h4 class="font-bold text-white mb-1"><i class="fa-solid fa-code text-blue-400 mr-2"></i>1. Kỹ năng Lập trình & Phát triển Phần mềm</h4>
+                            <p class="text-slate-400">Thành thạo các ngôn ngữ lập trình phổ biến (Java, Python, C#, JavaScript, C++), xây dựng ứng dụng Web, Mobile và Desktop theo mô hình chuẩn.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-700/70">
+                            <h4 class="font-bold text-white mb-1"><i class="fa-solid fa-database text-cyan-400 mr-2"></i>2. Quản trị Cơ sở dữ liệu & Hệ thống</h4>
+                            <p class="text-slate-400">Thiết kế, tối ưu hóa CSDL quan hệ và phi quan hệ (MySQL, PostgreSQL, MongoDB); quản trị hệ thống mạng và nền tảng điện toán đám mây (Cloud).</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-700/70">
+                            <h4 class="font-bold text-white mb-1"><i class="fa-solid fa-robot text-purple-400 mr-2"></i>3. Ứng dụng Trí tuệ Nhân tạo (AI) & Phân tích Dữ liệu</h4>
+                            <p class="text-slate-400">Sử dụng công cụ AI hỗ trợ lập trình, phân tích dữ liệu lớn và tích hợp các giải pháp Machine Learning cơ bản vào sản phẩm thực tế.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-700/70">
+                            <h4 class="font-bold text-white mb-1"><i class="fa-solid fa-users-gear text-emerald-400 mr-2"></i>4. Kỹ năng Mềm & Làm việc nhóm</h4>
+                            <p class="text-slate-400">Làm việc theo quy trình Agile/Scrum, kỹ năng thuyết trình, quản lý thời gian và giải quyết vấn đề hiệu quả trong các dự án công nghệ.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/50 border border-slate-700 p-8 rounded-2xl shadow-xl">
+                    <h3 class="text-2xl font-bold text-emerald-400 mb-6 flex items-center gap-3">
+                        <i class="fa-solid fa-briefcase"></i> Vị Trí Việc Làm Sau Khi Tốt Nghiệp
+                    </h3>
+                    <div class="space-y-4 text-slate-300 text-sm">
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-700/70">
+                            <h4 class="font-bold text-white mb-1"><i class="fa-solid fa-laptop-code text-blue-400 mr-2"></i>1. Lập trình viên Phần mềm (Software Engineer)</h4>
+                            <p class="text-slate-400">Phát triển các ứng dụng Web, Mobile, hệ thống phần mềm cho các tập đoàn công nghệ trong và ngoài nước (Frontend, Backend, Full-stack).</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-700/70">
+                            <h4 class="font-bold text-white mb-1"><i class="fa-solid fa-chart-line text-cyan-400 mr-2"></i>2. Chuyên viên Dữ liệu & AI (Data Analyst / AI Engineer)</h4>
+                            <p class="text-slate-400">Thu thập, phân tích dữ liệu kinh doanh, xây dựng mô hình dự báo và hỗ trợ doanh nghiệp ra quyết định dựa trên dữ liệu.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-700/70">
+                            <h4 class="font-bold text-white mb-1"><i class="fa-solid fa-shield-halved text-purple-400 mr-2"></i>3. Chuyên viên An toàn Thông tin (Security Analyst)</h4>
+                            <p class="text-slate-400">Bảo vệ hệ thống mạng, kiểm tra lỗ hổng bảo mật và phòng chống rủi ro tấn công mạng cho các tổ chức, doanh nghiệp.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-700/70">
+                            <h4 class="font-bold text-white mb-1"><i class="fa-solid fa-network-wired text-emerald-400 mr-2"></i>4. Kỹ sư Hệ thống & DevOps (System / DevOps Engineer)</h4>
+                            <p class="text-slate-400">Vận hành hạ tầng công nghệ, quản trị hệ thống máy chủ cloud và tự động hóa quy trình triển khai phần mềm (CI/CD).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-slate-950 py-10 px-4 border-t border-slate-800 text-center text-slate-400 text-sm space-y-3">
+            <p class="font-semibold text-slate-200">Khoa Công nghệ Thông tin - Trường Đại học Công nghệ TP.HCM (HUTECH)</p>
+            <p>Hệ thống hỗ trợ học tập, định hướng nghề nghiệp và tư vấn trực tuyến</p>
+        </footer>
+
+        <!-- ==================== WIDGET CHATBOT (CHỈ LÀ CHAT BOT, KHÔNG HIỂN THỊ DANH SÁCH CÂU HỎI CHUNG) ==================== -->
+        <div class="fixed bottom-6 right-6 z-40">
+            <div id="chatBox" class="hidden mb-4 w-[380px] sm:w-[430px] h-[580px] bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+                <div class="p-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-500 to-emerald-400 flex items-center justify-center text-slate-900 font-bold"><i class="fa-solid fa-robot"></i></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-white">Chat Bot Tư Vấn CNTT HUTECH</h4>
+                            <span class="text-[11px] text-emerald-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Trực tuyến</span>
+                        </div>
+                    </div>
+                    <button onclick="toggleChatBox()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-minus"></i></button>
+                </div>
+                
+                <!-- Khu vực hiển thị tin nhắn chat lưu trữ ngoại tuyến cá nhân của sinh viên -->
+                <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-950/40"></div>
+                
+                <form onsubmit="handleUserSendMessage(event)" class="p-3 bg-slate-900 border-t border-slate-700 flex gap-2">
+                    <input type="text" id="chatInput" required placeholder="Nhập câu hỏi của bạn..." class="flex-1 px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none">
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-500 transition"><i class="fa-solid fa-paper-plane"></i></button>
+                </form>
+            </div>
+            <button onclick="openChatBox()" class="ml-auto w-14 h-14 rounded-full bg-gradient-to-r from-red-600 to-blue-600 text-white shadow-xl flex items-center justify-center text-2xl transition hover:scale-105"><i class="fa-solid fa-comment-dots"></i></button>
+        </div>
+    </div>
+
+    <!-- ==================== BẢNG QUẢN LÝ HỆ THỐNG (CHỈ ADMIN THẤY) ==================== -->
+    <div id="adminDashboardModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-4xl p-6 shadow-2xl flex flex-col h-[620px]">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-700">
+                <div>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-users-rectangle text-purple-400"></i> Bảng Quản Lý Hệ Thống & Cài Đặt Chatbot AI (Admin)
+                    </h3>
+                    <p class="text-xs text-slate-400">Quản lý tài khoản sinh viên đăng ký, cấu hình Key AI và câu hỏi chờ tư vấn ngoại tuyến</p>
+                </div>
+                <button onclick="toggleAdminDashboard()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="flex flex-wrap gap-2 my-4 border-b border-slate-700 pb-2">
+                <button onclick="switchAdminTab('users')" id="btnTabUsers" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-purple-600 text-white transition">
+                    <i class="fa-solid fa-user-group mr-1"></i> Sinh viên đăng ký (<span id="userCount">0</span>)
+                </button>
+                <button onclick="switchAdminTab('chats')" id="btnTabChats" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-700 text-slate-300 hover:text-white transition">
+                    <i class="fa-solid fa-list-check mr-1"></i> Danh sách Câu hỏi & Trả lời thủ công
+                </button>
+                <button onclick="switchAdminTab('aiConfig')" id="btnTabAiConfig" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-700 text-slate-300 hover:text-white transition">
+                    <i class="fa-solid fa-key mr-1"></i> Cấu hình Key AI (Gemini API)
+                </button>
+            </div>
+
+            <!-- Tab 1: Quản lý Sinh viên -->
+            <div id="tabContentUsers" class="flex-1 overflow-y-auto space-y-4 pr-1">
+                <div class="overflow-x-auto rounded-xl border border-slate-700">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-900 text-slate-400 border-b border-slate-700">
+                                <th class="p-3 font-semibold">MSSV / ID</th>
+                                <th class="p-3 font-semibold">Họ và tên</th>
+                                <th class="p-3 font-semibold">Mật khẩu</th>
+                                <th class="p-3 font-semibold">Trạng thái</th>
+                                <th class="p-3 font-semibold text-right">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody" class="divide-y divide-slate-700/50"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 2: Danh sách câu hỏi & trả lời thủ công (Lưu trữ ngoại tuyến khi admin offline) -->
+            <div id="tabContentChats" class="flex-1 overflow-y-auto space-y-3 pr-2 hidden flex flex-col h-full">
+                <div class="p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300">
+                    <i class="fa-solid fa-circle-info mr-1"></i> Câu hỏi từ sinh viên được lưu trữ vĩnh viễn trong hệ thống. Ngay cả khi bạn offline, sinh viên vẫn gửi câu hỏi được và hệ thống sẽ thông báo kết quả trả lời khi bạn phản hồi.
+                </div>
+                <div id="adminQuestionList" class="flex-1 overflow-y-auto space-y-3 bg-slate-900/50 p-3 rounded-xl border border-slate-700"></div>
+            </div>
+
+            <!-- Tab 3: Cấu hình API Key AI -->
+            <div id="tabContentAiConfig" class="flex-1 overflow-y-auto space-y-4 pr-1 hidden">
+                <div class="p-4 rounded-xl bg-slate-900 border border-slate-700 space-y-4">
+                    <h4 class="font-bold text-sm text-cyan-400"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Cài đặt Khóa API cho Chatbot AI</h4>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Nhập Gemini API Key để bật tính năng trả lời tự động thông minh kết hợp trả lời thủ công từ Admin.
+                    </p>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Gemini API Key</label>
+                        <input type="password" id="apiKeyInput" placeholder="Nhập API Key (VD: AIzaSy...)" class="w-full px-4 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm focus:border-cyan-500 focus:outline-none font-mono">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="saveApiKey()" class="px-5 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-xs font-semibold text-white transition shadow-lg">
+                            Lưu API Key
+                        </button>
+                        <span id="apiKeyStatus" class="text-xs text-slate-400"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SCRIPT HỆ THỐNG ==================== -->
+    <script>
+        let currentUser = JSON.parse(localStorage.getItem('it_hub_user')) || null;
+        
+        // Khởi tạo danh sách sinh viên rỗng (đã loại bỏ hoàn toàn các tài khoản mẫu)
+        let officialStudents = JSON.parse(localStorage.getItem('it_hub_students')) || [];
+
+        let geminiApiKey = localStorage.getItem('it_hub_gemini_key') || '';
+
+        // Dữ liệu câu hỏi lưu trữ vĩnh viễn (lưu trữ offline/online)
+        let questionList = JSON.parse(localStorage.getItem('it_hub_questions')) || [];
+
+        window.onload = () => {
+            checkAuthGuard();
+            renderStudentsTable();
+            renderQuestionList();
+            document.getElementById('apiKeyInput').value = geminiApiKey;
+            updateApiKeyStatus();
+            switchPage('home');
+        };
+
+        function checkAuthGuard() {
+            const authGateModal = document.getElementById('authGateModal');
+            const mainContent = document.getElementById('mainWebsiteContent');
+
+            if (currentUser) {
+                authGateModal.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                updateAuthUI();
+            } else {
+                authGateModal.classList.remove('hidden');
+                mainContent.classList.add('hidden');
+            }
+        }
+
+        function switchPage(pageId) {
+            const pages = document.querySelectorAll('.page-view');
+            pages.forEach(p => p.classList.add('hidden'));
+            const target = document.getElementById(`page-${pageId}`);
+            if (target) {
+                target.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Đồng bộ hóa dữ liệu thời gian thực giữa admin và sinh viên
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'it_hub_questions') {
+                questionList = JSON.parse(e.newValue) || [];
+                renderQuestionList();
+            }
+            if (e.key === 'it_hub_students') {
+                officialStudents = JSON.parse(e.newValue) || [];
+                renderStudentsTable();
+            }
+        });
+
+        function switchAuthTab(tab) {
+            const isLogin = tab === 'login';
+            const isReg = tab === 'register';
+            const isAdmin = tab === 'admin';
+
+            document.getElementById('formLogin').classList.toggle('hidden', !isLogin);
+            document.getElementById('formRegister').classList.toggle('hidden', !isReg);
+            document.getElementById('formAdmin').classList.toggle('hidden', !isAdmin);
+
+            document.getElementById('tabLogin').className = isLogin ? 'py-2 rounded-lg bg-blue-600 text-white transition flex items-center justify-center gap-1' : 'py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1';
+            document.getElementById('tabRegister').className = isReg ? 'py-2 rounded-lg bg-emerald-600 text-white transition flex items-center justify-center gap-1' : 'py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1';
+            document.getElementById('tabAdmin').className = isAdmin ? 'py-2 rounded-lg bg-purple-600 text-white transition flex items-center justify-center gap-1' : 'py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1';
+        }
+
+        function handleStudentRegister(e) {
+            e.preventDefault();
+            const mssv = document.getElementById('regMssv').value.trim();
+            const name = document.getElementById('regName').value.trim();
+            const pass = document.getElementById('regPass').value.trim();
+            const errEl = document.getElementById('regError');
+
+            if (officialStudents.some(s => s.mssv === mssv)) {
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            errEl.classList.add('hidden');
+            officialStudents.push({ mssv, name, pass, status: "Hoạt động" });
+            localStorage.setItem('it_hub_students', JSON.stringify(officialStudents));
+            renderStudentsTable();
+
+            currentUser = { role: 'student', name: `${name} (${mssv})`, mssv: mssv };
+            localStorage.setItem('it_hub_user', JSON.stringify(currentUser));
+
+            checkAuthGuard();
+            alert(`Đăng ký và đăng nhập thành công! Xin chào sinh viên ${name}`);
+        }
+
+        function handleStudentLogin(e) {
+            e.preventDefault();
+            const mssv = document.getElementById('loginMssv').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+            const errorEl = document.getElementById('studentAuthError');
+
+            const foundStudent = officialStudents.find(s => s.mssv === mssv && s.pass === pass && s.status === "Hoạt động");
+
+            if (!foundStudent) {
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            errorEl.classList.add('hidden');
+            currentUser = { role: 'student', name: `${foundStudent.name} (${foundStudent.mssv})`, mssv: foundStudent.mssv };
+            localStorage.setItem('it_hub_user', JSON.stringify(currentUser));
+
+            checkAuthGuard();
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('adminUser').value.trim();
+            const p = document.getElementById('adminPass').value.trim();
+            
+            if (u === 'Bùi Vi Tính' && p === 'vitinh2008') {
+                currentUser = { role: 'admin', name: 'Bùi Vi Tính (Admin)' };
+                localStorage.setItem('it_hub_user', JSON.stringify(currentUser));
+
+                checkAuthGuard();
+                toggleAdminDashboard();
+                
+                document.getElementById('adminUser').value = '';
+                document.getElementById('adminPass').value = '';
+            } else {
+                alert('Sai tài khoản hoặc mật khẩu Quản trị viên!');
+                document.getElementById('adminPass').value = '';
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('it_hub_user');
+            checkAuthGuard();
+            alert('Đã đăng xuất khỏi hệ thống.');
+        }
+
+        function updateAuthUI() {
+            const userNameText = document.getElementById('userNameText');
+            const userRoleIcon = document.getElementById('userRoleIcon');
+            const adminDashboardBtn = document.getElementById('adminDashboardBtn');
+
+            if (currentUser) {
+                userNameText.textContent = currentUser.name;
+                if (currentUser.role === 'admin') {
+                    adminDashboardBtn.classList.remove('hidden');
+                    userRoleIcon.className = 'fa-solid fa-user-shield text-purple-400';
+                } else {
+                    adminDashboardBtn.classList.add('hidden');
+                    userRoleIcon.className = 'fa-solid fa-user-graduate text-emerald-400';
+                }
+            }
+        }
+
+        function toggleAdminDashboard() {
+            document.getElementById('adminDashboardModal').classList.toggle('hidden');
+            renderStudentsTable();
+            renderQuestionList();
+        }
+
+        function switchAdminTab(tab) {
+            const isUsers = tab === 'users';
+            const isChats = tab === 'chats';
+            const isAi = tab === 'aiConfig';
+
+            document.getElementById('tabContentUsers').classList.toggle('hidden', !isUsers);
+            document.getElementById('tabContentChats').classList.toggle('hidden', !isChats);
+            document.getElementById('tabContentAiConfig').classList.toggle('hidden', !isAi);
+
+            document.getElementById('btnTabUsers').className = isUsers ? 'px-3.5 py-2 rounded-lg text-xs font-semibold bg-purple-600 text-white transition' : 'px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-700 text-slate-300 hover:text-white transition';
+            document.getElementById('btnTabChats').className = isChats ? 'px-3.5 py-2 rounded-lg text-xs font-semibold bg-purple-600 text-white transition' : 'px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-700 text-slate-300 hover:text-white transition';
+            document.getElementById('btnTabAiConfig').className = isAi ? 'px-3.5 py-2 rounded-lg text-xs font-semibold bg-purple-600 text-white transition' : 'px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-700 text-slate-300 hover:text-white transition';
+        }
+
+        function renderStudentsTable() {
+            const tbody = document.getElementById('studentTableBody');
+            document.getElementById('userCount').textContent = officialStudents.length;
+
+            if (officialStudents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Chưa có sinh viên nào đăng ký tài khoản.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = officialStudents.map((s, idx) => `
+                <tr class="hover:bg-slate-900/50 transition">
+                    <td class="p-3 font-mono text-blue-400">${s.mssv}</td>
+                    <td class="p-3 font-medium text-white">${s.name}</td>
+                    <td class="p-3 font-mono text-slate-400">${s.pass}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] ${s.status === 'Hoạt động' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'}">
+                            ${s.status}
+                        </span>
+                    </td>
+                    <td class="p-3 text-right space-x-2">
+                        <button onclick="toggleStudentStatus(${idx})" class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 text-[11px]">
+                            ${s.status === 'Hoạt động' ? 'Khóa' : 'Mở'}
+                        </button>
+                        <button onclick="deleteStudent(${idx})" class="px-2.5 py-1 rounded bg-red-500/20 text-red-300 hover:bg-red-500/30 text-[11px]">
+                            Xóa
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            localStorage.setItem('it_hub_students', JSON.stringify(officialStudents));
+        }
+
+        function toggleStudentStatus(idx) {
+            officialStudents[idx].status = officialStudents[idx].status === 'Hoạt động' ? 'Đã khóa' : 'Hoạt động';
+            renderStudentsTable();
+        }
+
+        function deleteStudent(idx) {
+            if (confirm(`Bạn có chắc muốn xóa tài khoản này không?`)) {
+                officialStudents.splice(idx, 1);
+                renderStudentsTable();
+            }
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            geminiApiKey = key;
+            localStorage.setItem('it_hub_gemini_key', key);
+            updateApiKeyStatus();
+            alert('Đã lưu API Key thành công!');
+        }
+
+        function updateApiKeyStatus() {
+            const statusEl = document.getElementById('apiKeyStatus');
+            if (geminiApiKey) {
+                statusEl.textContent = 'Trạng thái: Đã cấu hình Key (AI sẵn sàng trả lời)';
+                statusEl.className = 'text-xs text-emerald-400 font-medium';
+            } else {
+                statusEl.textContent = 'Trạng thái: Chưa có Key (Chỉ dùng trả lời thủ công)';
+                statusEl.className = 'text-xs text-amber-400 font-medium';
+            }
+        }
+
+        function toggleChatBox() { document.getElementById('chatBox').classList.toggle('hidden'); renderQuestionList(); }
+        function openChatBox() { document.getElementById('chatBox').classList.remove('hidden'); renderQuestionList(); }
+
+        async function handleUserSendMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const senderName = currentUser ? currentUser.name : 'Khách';
+            const senderMssv = currentUser ? currentUser.mssv : 'guest';
+            const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            const newQ = {
+                id: Date.now(),
+                author: senderName,
+                mssv: senderMssv,
+                question: text,
+                time: timeStr,
+                replies: []
+            };
+
+            questionList.unshift(newQ);
+            input.value = '';
+            saveAndRenderQuestions();
+
+            if (geminiApiKey) {
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{ text: `Bạn là trợ lý ảo tư vấn tuyển sinh và học tập ngành Công nghệ Thông tin tại HUTECH. Hãy trả lời câu hỏi sau một cách ngắn gọn, hữu ích bằng tiếng Việt: ${text}` }]
+                            }]
+                        })
+                    });
+                    const data = await response.json();
+                    let aiReply = "Xin lỗi, tôi không thể kết nối đến hệ thống AI lúc này.";
+                    if (data.candidates && data.candidates[0].content.parts[0].text) {
+                        aiReply = data.candidates[0].content.parts[0].text;
+                    }
+                    newQ.replies.push({ sender: 'ai', name: 'Trợ lý AI HUTECH', text: aiReply, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                    saveAndRenderQuestions();
+                } catch (err) {
+                    newQ.replies.push({ sender: 'ai', name: 'Trợ lý AI HUTECH', text: 'Lỗi kết nối API Key.', time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                    saveAndRenderQuestions();
+                }
+            } else {
+                setTimeout(() => {
+                    newQ.replies.push({ sender: 'ai', name: 'Trợ lý AI HUTECH', text: 'Đã lưu câu hỏi thành công! Vì Admin hiện đang offline, câu hỏi của bạn đã được ghi nhận và sẽ nhận được thông báo phản hồi khi Admin online trở lại.', time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                    saveAndRenderQuestions();
+                }, 400);
+            }
+        }
+
+        function handleAdminReplyToQuestion(event, qId) {
+            event.preventDefault();
+            const input = document.getElementById(`replyInput_${qId}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const targetQ = questionList.find(q => q.id === qId);
+            if (targetQ) {
+                targetQ.replies.push({
+                    sender: 'admin',
+                    name: 'Bùi Vi Tính (Admin)',
+                    text: text,
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                input.value = '';
+                saveAndRenderQuestions();
+                alert('Đã lưu và gửi phản hồi thành công! Sinh viên sẽ nhận được thông báo khi đăng nhập/truy cập hệ thống.');
+            }
+        }
+
+        function saveAndRenderQuestions() {
+            localStorage.setItem('it_hub_questions', JSON.stringify(questionList));
+            renderQuestionList();
+        }
+
+        function renderQuestionList() {
+            const chatContainer = document.getElementById('chatMessages');
+            const adminContainer = document.getElementById('adminQuestionList');
+
+            // 1. Giao diện Chat của sinh viên: Hiển thị lịch sử câu hỏi và thông báo phản hồi lưu trữ ngay cả khi Admin từng offline
+            if (chatContainer) {
+                if (questionList.length === 0) {
+                    chatContainer.innerHTML = `<div class="text-center text-xs text-slate-500 py-6">Hãy đặt câu hỏi để nhận thông tin tư vấn từ hệ thống hoặc Admin nhé!</div>`;
+                } else {
+                    // Nếu là sinh viên đang đăng nhập, hiển thị các câu hỏi thuộc phiên của họ hoặc tất cả câu hỏi lưu trữ cá nhân
+                    const myQuestions = currentUser && currentUser.role === 'student' 
+                        ? questionList.filter(q => q.mssv === currentUser.mssv || q.author === currentUser.name)
+                        : questionList;
+
+                    if (myQuestions.length === 0) {
+                        chatContainer.innerHTML = `<div class="text-center text-xs text-slate-500 py-6">Bạn chưa có câu hỏi nào. Hãy gửi câu hỏi ngay bên dưới!</div>`;
+                    } else {
+                        chatContainer.innerHTML = myQuestions.map(q => `
+                            <div class="space-y-3">
+                                <div class="flex justify-end">
+                                    <div class="max-w-[85%] p-3 rounded-xl bg-blue-600 text-white text-xs shadow-md space-y-1">
+                                        <p class="font-semibold">${q.question}</p>
+                                        <span class="text-[9px] text-blue-200 block text-right">${q.time}</span>
+                                    </div>
+                                </div>
+                                ${q.replies.map(r => `
+                                    <div class="flex justify-start">
+                                        <div class="max-w-[85%] p-3 rounded-xl ${r.sender === 'admin' ? 'bg-purple-900/80 border border-purple-500/40 text-purple-100' : 'bg-slate-900 border border-slate-700 text-slate-200'} text-xs shadow-md space-y-1">
+                                            <div class="font-bold ${r.sender === 'admin' ? 'text-purple-300' : 'text-emerald-400'} flex items-center gap-1">
+                                                <i class="fa-solid ${r.sender === 'admin' ? 'fa-user-shield' : 'fa-robot'}"></i> ${r.name}
+                                                ${r.sender === 'admin' ? '<span class="ml-auto text-[9px] bg-purple-600 px-1.5 py-0.5 rounded text-white">Đã phản hồi</span>' : ''}
+                                            </div>
+                                            <p>${r.text}</p>
+                                            <span class="text-[9px] text-slate-400 block text-right">${r.time}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `).join('');
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }
+                }
+            }
+
+            // 2. Giao diện Quản trị của Admin: Hiển thị đầy đủ câu hỏi ngay cả khi Admin offline, chờ phản hồi
+            if (adminContainer) {
+                if (questionList.length === 0) {
+                    adminContainer.innerHTML = `<div class="text-center text-xs text-slate-500 py-6">Chưa có câu hỏi nào từ sinh viên.</div>`;
+                } else {
+                    adminContainer.innerHTML = questionList.map(q => `
+                        <div class="p-3.5 rounded-xl bg-slate-800/90 border border-slate-700/80 shadow-md space-y-3">
+                            <div class="flex items-start justify-between gap-2 border-b border-slate-700/60 pb-2">
+                                <div>
+                                    <span class="text-[11px] font-bold text-blue-400 flex items-center gap-1">
+                                        <i class="fa-solid fa-user-graduate"></i> Người hỏi: ${q.author} (MSSV: ${q.mssv})
+                                    </span>
+                                    <p class="text-sm font-semibold text-white mt-1">❓ Nội dung câu hỏi: "${q.question}"</p>
+                                </div>
+                                <span class="text-[10px] text-slate-400 whitespace-nowrap">${q.time}</span>
+                            </div>
+
+                            <div class="space-y-2 pl-2 border-l-2 border-slate-700">
+                                ${q.replies.length === 0 ? '<p class="text-xs text-amber-400 italic"><i class="fa-solid fa-clock"></i> Đang chờ Admin phản hồi (Được lưu trữ ngoại tuyến)...</p>' : 
+                                    q.replies.map(r => `
+                                        <div class="p-2 rounded-lg ${r.sender === 'admin' ? 'bg-purple-950/40 border border-purple-500/30' : 'bg-slate-900/70 border border-slate-700/40'} text-xs space-y-1">
+                                            <div class="flex items-center justify-between">
+                                                <span class="font-bold ${r.sender === 'admin' ? 'text-purple-300' : 'text-emerald-400'}">
+                                                    <i class="fa-solid ${r.sender === 'admin' ? 'fa-user-shield' : 'fa-robot'} mr-1"></i>${r.name}
+                                                </span>
+                                                <span class="text-[9px] text-slate-500">${r.time}</span>
+                                            </div>
+                                            <p class="text-slate-200 leading-relaxed">${r.text}</p>
+                                        </div>
+                                    `).join('')
+                                }
+                            </div>
+
+                            <form onsubmit="handleAdminReplyToQuestion(event, ${q.id})" class="mt-2 pt-2 border-t border-slate-700/50 flex gap-2">
+                                <input type="text" id="replyInput_${q.id}" required placeholder="Nhập câu trả lời thủ công để lưu và gửi thông báo tới sinh viên..." class="flex-1 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none">
+                                <button type="submit" class="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs font-semibold text-white">Gửi phản hồi</button>
+                            </form>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
